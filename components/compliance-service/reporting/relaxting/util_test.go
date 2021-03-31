@@ -14,9 +14,14 @@ func TestGetEsIndexNoTimeLast24h(t *testing.T) {
 	index, err := GetEsIndex(filters, true)
 
 	today := time.Now().UTC().Format("2006.01.02")
-	yesterday := time.Now().Add(-24 * time.Hour).UTC().Format("2006.01.02")
+	if today[len(today)-2:] == "31" {
+		//if it's the 31st, shave off the 1 and make it 3*, which will be the 30th and 31st
+		assert.Equal(t, sum+"-"+today[:len(today)-1]+"*", index)
+	} else {
+		yesterday := time.Now().Add(-24 * time.Hour).UTC().Format("2006.01.02")
+		assert.Equal(t, sum+"-"+yesterday+"*,"+sum+"-"+today+"*", index)
+	}
 
-	assert.Equal(t, sum+"-"+yesterday+"*,"+sum+"-"+today+"*", index)
 	assert.NoError(t, err)
 }
 
